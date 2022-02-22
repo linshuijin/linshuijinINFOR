@@ -1,32 +1,8 @@
 # Conv3D 算子设计文档
 
-修订记录
-
-| 版本 | 描述 | 时间       | 作者       |
-| ---- | ---- | ---------- | ---------- |
-|      | 初版 | 2021.07.02 | Yinjun.Pan |
-|      |      |            |            |
-
-
-
-
-
 ## 1. Conv3D 简介
 
-**XLA ConvND Semantic **
 
-| **Arguments**         | **Type**                         | **Semantics**                    |
-| --------------------- | -------------------------------- | -------------------------------- |
-| `lhs`                 | `XlaOp`                          | rank n+2 array of inputs         |
-| `rhs`                 | `XlaOp`                          | rank n+2 array of kernel weights |
-| `window_strides`      | `ArraySlice<int64>`              | n-d array of kernel strides      |
-| `padding`             | `ArraySlice< pair<int64,int64>>` | n-d array of (low, high) padding |
-| `lhs_dilation`        | `ArraySlice<int64>`              | n-d lhs dilation factor array    |
-| `rhs_dilation`        | `ArraySlice<int64>`              | n-d rhs dilation factor array    |
-| `feature_group_count` | int64                            | the number of feature groups     |
-| `batch_group_count`   | int64                            | the number of batch groups       |
-
-**XLA全语义的3D卷积**
 $$
 [N,ID,IH,IW,IC]\ *\ [T,R,S,KCi,KCo]\ =\ [N,OD,OH,OW,KCo]\\
 
@@ -251,42 +227,9 @@ dataflow factor 伪代码需做改动
 
 - 针对较小的Ci作dataflow切分写对应的SIP kernel实现。
 
-## 4. Factor 接口
 
-Dataflow采用factor开发，使用pull mode，dma的各项操作在sip内部完成。
-
-## 5. Non4C support
-
-|               | N    |  Di  |  Hi  |  Wi  | ICi  |  T   |  R   |  S   | KCi  | KCo  |  N   |  Do  | Ho   | Wo   | OCo  |
-| :-----------: | ---- | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | ---- | ---- | ---- |
-| split_support | √    |  -   |  -   |  -   |  -   |  -   |  -   |  -   |  -   |  -   |  √   |  -   | -    | -    | -    |
-|   split_num   | 4    |      |      |      |      |      |      |      |      |      |  4   |      |      |      |      |
-
-
-
-## 6. 测试用例设计
-
-### 6.1 场景测试
-
-Verify patterns of conv3d arising in the typical network and other odd patterns：
-
-- all dims small
-- all dims large
-- Random stress test
-- asymmetrical window/stride/dialation/input
-- etc. 
-
-### 6.2 性能测试
-
-Test patterns of conv3d arising in the typical network on zebu.
-
-## 7. Roadmap
-
-2021.07.05-2021.08.30  采用f32数据类型，完成Conv3D feature specific中功能支持.
-
-2021.09.01-  支持不同数据类型，进一步调试优化.
 
 ......
 
-Conv3D BPI and BPK: TBD
+Conv3D BPI and BPK
 
